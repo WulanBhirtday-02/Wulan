@@ -1,0 +1,558 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun, Wulan Sariningsih! ✨</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blush: {
+                            50: '#fff5f7',
+                            100: '#ffe3ec',
+                            200: '#fccad9',
+                            300: '#faa2bd',
+                            400: '#f76b97',
+                            500: '#f23a74',
+                        },
+                        rose: {
+                            gold: '#b76e79',
+                            light: '#e8c5c8',
+                            soft: '#fff0f3',
+                        },
+                        warm: {
+                            cream: '#fdfbf7',
+                            gold: '#d4af37',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        script: ['Dancing Script', 'cursive'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #fdfbf7 0%, #fff0f3 50%, #ffe3ec 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px rgba(183, 110, 121, 0.12);
+        }
+
+        /* Floating particles CSS */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-40px) rotate(180deg); }
+        }
+
+        /* Candle Flame Animation */
+        .flame {
+            width: 14px;
+            height: 24px;
+            background: linear-gradient(to top, #ff7b00, #ffae00, #fff700);
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: drop-shadow(0 0 10px #ffae00);
+            animation: flicker 0.6s infinite alternate;
+            cursor: pointer;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1) rotate(-2deg); opacity: 0.95; }
+            100% { transform: translateX(-50%) scale(1.15) rotate(2deg); opacity: 1; }
+        }
+
+        .flame.extinguished {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.2);
+            pointer-events: none;
+        }
+
+        /* Smoke effect when blown */
+        .smoke {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: rgba(200, 200, 200, 0.8);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .smoke.active {
+            animation: rise 2s forwards;
+        }
+
+        @keyframes rise {
+            0% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-60%, -40px) scale(3); }
+        }
+
+        /* Soft Pulsing Effect */
+        .pulse-soft {
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(247, 107, 151, 0.2); }
+            100% { box-shadow: 0 0 35px rgba(247, 107, 151, 0.45); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fdfbf7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #faa2bd;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen relative pb-16">
+
+    <!-- Floating Background Elements -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Top Music & Navigation Bar -->
+    <header class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex justify-between items-center bg-white/40 backdrop-blur-md border-b border-white/50">
+        <div class="flex items-center gap-2">
+            <span class="text-rose-gold font-script text-2xl font-bold">Wulan's Day</span>
+            <span class="text-xs bg-blush-100 text-blush-500 px-2.5 py-0.5 rounded-full font-medium">🎂 Special</span>
+        </div>
+        
+        <!-- Audio Controller -->
+        <button id="musicToggleBtn" onclick="toggleAudio()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-sm border border-pink-100 transition-all text-xs sm:text-sm font-medium">
+            <i id="musicIcon" class="fa-solid me-1 text-blush-500 fa-music"></i>
+            <span id="musicText">Putar Musik 🎵</span>
+        </button>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-12 flex flex-col items-center gap-12">
+
+        <!-- Hero Section with Photo Frame -->
+        <section class="text-center space-y-5 max-w-2xl flex flex-col items-center">
+            <div class="inline-block animate-bounce">
+                <span class="px-4 py-1.5 bg-white/80 rounded-full text-blush-500 font-semibold text-xs tracking-widest uppercase shadow-sm border border-blush-100">
+                    💖 Happy Birthday 💖
+                </span>
+            </div>
+
+            <!-- Profile Avatar Photo Frame -->
+            <div class="relative group my-2">
+                <!-- Glowing Ring Aura -->
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-blush-400 via-rose-400 to-warm-gold rounded-full blur-md opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+                
+                <!-- Main Image Container -->
+                <div class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-transform duration-500 group-hover:scale-105">
+                    <img src="Wul.jpg" alt="Wulan Sariningsih" class="w-full h-full object-cover object-top filter contrast-105 brightness-102" onerror="this.src='https://placehold.co/400x400/ffe3ec/f23a74?text=Wulan+Sariningsih'" />
+                </div>
+
+                <!-- Floating Decor Badge -->
+                <div class="absolute -bottom-2 -right-2 bg-white text-blush-500 w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 border-pink-100 text-lg animate-bounce">
+                    👑
+                </div>
+            </div>
+            
+            <h1 class="text-4xl sm:text-6xl font-serif text-gray-800 tracking-tight leading-tight">
+                Selamat Ulang Tahun, <br/>
+                <span class="font-script text-blush-500 text-5xl sm:text-7xl drop-shadow-sm block mt-2">Wulan Sariningsih</span>
+            </h1>
+
+            <p class="text-gray-600 font-light text-base sm:text-lg max-w-lg mx-auto italic">
+                "Semoga setiap langkahmu dipenuhi senyuman, kehangatan, dan kebahagiaan yang melimpah."
+            </p>
+        </section>
+
+        <!-- Main Heartfelt Message Card -->
+        <section class="w-full">
+            <div class="glass-card rounded-3xl p-6 sm:p-10 relative overflow-hidden pulse-soft">
+                <!-- Decorative Quote Marks -->
+                <div class="absolute -top-4 -left-2 text-blush-200/50 text-8xl font-serif pointer-events-none">“</div>
+                <div class="absolute -bottom-10 -right-2 text-blush-200/50 text-8xl font-serif pointer-events-none">”</div>
+                
+                <div class="flex items-center gap-3 mb-6 border-b border-blush-100 pb-4">
+                    <div class="w-10 h-10 rounded-full bg-blush-100 flex items-center justify-center text-blush-500">
+                        <i class="fa-solid fa-heart text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 font-serif">Pesan Spesial Untukmu</h2>
+                        <p class="text-xs text-gray-500">Dari seseorang yang sangat bersyukur mengenalmu</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-gray-700 leading-relaxed font-normal text-base sm:text-lg text-justify">
+                    <p class="first-letter:text-4xl first-letter:font-script first-letter:text-blush-500 first-letter:mr-1">
+                        Hahah ga nyangka pertama kali di hidup ku ngucapin ultah untuk wanita nya itu ke kamu , Semoga kamu menemukan kejutan-kejutan menyenangkan di mana pun berada. Terima kasih sudah memberiku kesempatan menciptakan kenangan indah selama beberapa bulan terakhir.
+                    </p>
+                    <p>
+                        Kamu berkah dalam hidupku, dan aku bahkan ga bisa membayangkan hari-hari ku yg absurd jika waktu itu ga ketemu kamu. Semoga hidupmu penuh keberhasilan , penuh kabar baik , penuh kebahagian bekali-kali lipat untuk mu , penuh rasa sabar dalam menghadapi masalah ataupun kerjaan ,
+                    </p>
+                    <p class="p-3 bg-pink-50/70 rounded-xl border border-pink-100 text-pink-900 font-medium text-sm sm:text-base">
+                        ☕💧 Dan ga bosen aku ngingetin ke kamu buat kurangin kopi dan perbanyak air putih nya kalo pagi eheheh ,
+                    </p>
+                    <p class="text-right font-script text-2xl text-blush-500 pt-2 font-semibold">
+                        You are the sweetest woman of my life, <br/>
+                        Once again, Happy Birthday, WULAN SARININGSIH! 🥳💌
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Section Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+
+            <!-- 1. Interactive Birthday Cake -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col items-center justify-between text-center relative">
+                <div class="mb-4">
+                    <h3 class="font-serif text-xl font-bold text-gray-800">Tiup Lilinnya 🎂</h3>
+                    <p class="text-xs text-gray-500 mt-1">Klik pada api lilin untuk meniupnya & buat permintaan!</p>
+                </div>
+
+                <!-- Cake Graphic -->
+                <div class="my-8 relative flex flex-col items-center cursor-pointer group" onclick="blowCandle()">
+                    <!-- Candle Smoke Animation Target -->
+                    <div id="smokeEffect" class="smoke"></div>
+                    
+                    <!-- Candle Flame -->
+                    <div id="candleFlame" class="flame"></div>
+                    
+                    <!-- Candle Stick -->
+                    <div class="w-3 h-12 bg-gradient-to-r from-pink-300 via-white to-pink-300 rounded-t-sm shadow-sm"></div>
+
+                    <!-- Cake Layers -->
+                    <div class="w-40 h-10 bg-blush-200 rounded-t-2xl relative shadow-inner flex items-center justify-center">
+                        <div class="w-full h-3 bg-white/70 absolute top-0 rounded-t-2xl"></div>
+                        <!-- Strawberries / Toppings -->
+                        <div class="flex justify-around w-full px-4 -top-3 absolute">
+                            <span class="text-sm">🍓</span>
+                            <span class="text-sm">🍓</span>
+                            <span class="text-sm">🍓</span>
+                        </div>
+                    </div>
+                    <div class="w-48 h-12 bg-rose-light rounded-t-lg relative shadow-md flex items-center justify-center">
+                        <div class="w-full h-3 bg-white/60 absolute top-0"></div>
+                        <span class="text-xs text-rose-800 tracking-widest font-semibold uppercase">For Wulan Sariningsih</span>
+                    </div>
+                    <div class="w-56 h-14 bg-blush-300 rounded-t-lg rounded-b-md relative shadow-lg">
+                        <div class="w-full h-4 bg-white/80 absolute top-0"></div>
+                        <div class="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-white opacity-60"></div>
+                            <div class="w-2 h-2 rounded-full bg-white opacity-60"></div>
+                            <div class="w-2 h-2 rounded-full bg-white opacity-60"></div>
+                        </div>
+                    </div>
+                    <!-- Plate -->
+                    <div class="w-64 h-3 bg-gray-200 rounded-full shadow-md mt-0.5"></div>
+                </div>
+
+                <div id="cakeMessage" class="text-xs font-semibold text-blush-500 h-6">
+                    ✨ Klik api lilin untuk meniup!
+                </div>
+            </section>
+
+            <!-- 2. Interactive Coffee vs Water Reminder -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col justify-between text-center relative">
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-gray-800">Pengingat Pagi Hari ☀️</h3>
+                    <p class="text-xs text-gray-500 mt-1">Pilihlah opsi terbaik untuk kesehatan Wulan pagi ini!</p>
+                </div>
+
+                <div class="my-6 flex items-center justify-center gap-6">
+                    <!-- Coffee Button -->
+                    <button onclick="chooseHydration('coffee')" class="group p-4 bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 rounded-2xl transition-all duration-300 flex flex-col items-center gap-2 transform hover:-translate-y-1">
+                        <span class="text-4xl group-hover:rotate-12 transition-transform">☕</span>
+                        <span class="text-xs font-bold text-amber-900">Kopi</span>
+                    </button>
+
+                    <span class="text-gray-400 font-serif font-bold text-xl">VS</span>
+
+                    <!-- Water Button -->
+                    <button onclick="chooseHydration('water')" class="group p-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-2xl transition-all duration-300 flex flex-col items-center gap-2 transform hover:-translate-y-1">
+                        <span class="text-4xl group-hover:scale-110 transition-transform">💧</span>
+                        <span class="text-xs font-bold text-blue-900">Air Putih</span>
+                    </button>
+                </div>
+
+                <!-- Hydration Feedback Box -->
+                <div id="hydrationFeedback" class="p-3 bg-white/80 rounded-xl text-xs text-gray-600 min-h-[60px] flex items-center justify-center border border-gray-100">
+                    Pilih salah satu ikon di atas ya! 😊
+                </div>
+            </section>
+        </div>
+
+        <!-- 3. Envelope / Gift Box Action -->
+        <section class="w-full text-center">
+            <button onclick="openSurpriseModal()" class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blush-400 to-blush-500 hover:from-blush-500 hover:to-blush-400 text-white font-bold rounded-full shadow-lg shadow-blush-300/50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fa-solid fa-envelope-open-text text-xl group-hover:scale-110 transition-transform"></i>
+                <span>Buka Surat Kejutan Spesial 💌</span>
+            </button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-400 pt-8 border-t border-pink-100/60 w-full">
+            Dibuat khusus dengan penuh rasa syukur & doa untuk Wulan Sari Ningsih ✨
+        </footer>
+    </main>
+
+    <!-- Surprise Modal Container -->
+    <div id="surpriseModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="glass-card bg-white/95 rounded-3xl max-w-md w-full p-6 sm:p-8 relative transform scale-95 transition-transform duration-300 shadow-2xl" id="modalCard">
+            <!-- Close Button -->
+            <button onclick="closeSurpriseModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-4">
+                <div class="w-16 h-16 bg-blush-100 rounded-full flex items-center justify-center text-blush-500 text-3xl mx-auto mb-2">
+                    🎁
+                </div>
+                
+                <h3 class="text-2xl font-serif font-bold text-gray-800">Harapan & Doa Tambahan</h3>
+                
+                <div class="text-sm text-gray-600 leading-relaxed text-left space-y-3 bg-blush-50/50 p-4 rounded-2xl border border-blush-100">
+                    <p>✨ <strong>Semoga:</strong> Langkah Wulan Sariningsih senantiasa dipermudah dalam meraih setiap impian dan cita-cita.</p>
+                    <p>🌸 <strong>Semoga:</strong> Selalu dikelilingi oleh orang-orang baik yang tulus menyayangimu.</p>
+                    <p>💖 <strong>Dan yang terpenting:</strong> Tetap jadi wanita manis, kuat, dan menginspirasi seperti yang kukenal selama beberapa bulan ini.</p>
+                </div>
+
+                <p class="font-script text-2xl text-blush-500 pt-2">
+                    Enjoy your special day, Wulan! 🎉
+                </p>
+
+                <button onclick="closeSurpriseModal()" class="w-full py-3 bg-blush-500 hover:bg-blush-400 text-white font-semibold rounded-xl transition-colors shadow-md text-sm">
+                    Tutup Surat 💌
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Audio & Interactivity Script -->
+    <script>
+        // --- 1. Background Floating Particles ---
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleTypes = ['✨', '💖', '🌸', '⭐', '🎈'];
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const el = document.createElement('div');
+                el.className = 'particle';
+                el.innerText = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+                el.style.left = `${Math.random() * 100}%`;
+                el.style.top = `${Math.random() * 100}%`;
+                el.style.fontSize = `${Math.random() * 14 + 12}px`;
+                el.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                el.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(el);
+            }
+        }
+
+        // --- 2. Synthetic Audio Player (Web Audio API) ---
+        // Generates a soft acoustic synth birthday melody without external audio file dependencies
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyTimeout = null;
+
+        const melodyNotes = [
+            { note: 'G4', duration: 0.4 }, { note: 'G4', duration: 0.4 }, { note: 'A4', duration: 0.8 }, { note: 'G4', duration: 0.8 }, { note: 'C5', duration: 0.8 }, { note: 'B4', duration: 1.2 },
+            { note: 'G4', duration: 0.4 }, { note: 'G4', duration: 0.4 }, { note: 'A4', duration: 0.8 }, { note: 'G4', duration: 0.8 }, { note: 'D5', duration: 0.8 }, { note: 'C5', duration: 1.2 },
+            { note: 'G4', duration: 0.4 }, { note: 'G4', duration: 0.4 }, { note: 'G5', duration: 0.8 }, { note: 'E5', duration: 0.8 }, { note: 'C5', duration: 0.8 }, { note: 'B4', duration: 0.8 }, { note: 'A4', duration: 0.8 },
+            { note: 'F5', duration: 0.4 }, { note: 'F5', duration: 0.4 }, { note: 'E5', duration: 0.8 }, { note: 'C5', duration: 0.8 }, { note: 'D5', duration: 0.8 }, { note: 'C5', duration: 1.4 }
+        ];
+
+        const noteFreqs = {
+            'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99
+        };
+
+        function playNote(freq, duration) {
+            if (!audioCtx || !isPlaying) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                // Soft envelope
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function playMelodyLoop(index = 0) {
+            if (!isPlaying) return;
+            const item = melodyNotes[index];
+            playNote(noteFreqs[item.note], item.duration);
+
+            const nextIndex = (index + 1) % melodyNotes.length;
+            melodyTimeout = setTimeout(() => {
+                playMelodyLoop(nextIndex);
+            }, item.duration * 600);
+        }
+
+        function toggleAudio() {
+            const btnText = document.getElementById('musicText');
+            const btnIcon = document.getElementById('musicIcon');
+
+            if (!isPlaying) {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                isPlaying = true;
+                playMelodyLoop();
+                btnText.innerText = 'Matikan Musik 🔇';
+                btnIcon.className = 'fa-solid me-1 text-blush-500 fa-volume-high';
+            } else {
+                isPlaying = false;
+                clearTimeout(melodyTimeout);
+                btnText.innerText = 'Putar Musik 🎵';
+                btnIcon.className = 'fa-solid me-1 text-blush-500 fa-music';
+            }
+        }
+
+        // --- 3. Cake Candle Blowing Feature ---
+        let isBlown = false;
+        function blowCandle() {
+            if (isBlown) return;
+
+            const flame = document.getElementById('candleFlame');
+            const smoke = document.getElementById('smokeEffect');
+            const cakeMsg = document.getElementById('cakeMessage');
+
+            flame.classList.add('extinguished');
+            smoke.classList.add('active');
+            isBlown = true;
+
+            cakeMsg.innerHTML = "🎉 Make a wish! Semoga semua doa Wulan dikabulkan!";
+            cakeMsg.classList.remove('text-blush-500');
+            cakeMsg.classList.add('text-green-600');
+
+            // Trigger celebratory Confetti
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // --- 4. Hydration Interactive Element ---
+        function chooseHydration(type) {
+            const feedback = document.getElementById('hydrationFeedback');
+            if (type === 'coffee') {
+                feedback.className = "p-3 bg-amber-50 rounded-xl text-xs text-amber-900 border border-amber-200 transition-all font-medium";
+                feedback.innerHTML = "⚠️ <i>Eheheh tetep maksa mau kopi ya?</i> Boleh kok, asal imbangi dengan air putih secukupnya ya Wulan! ☕😊";
+            } else {
+                feedback.className = "p-3 bg-blue-50 rounded-xl text-xs text-blue-900 border border-blue-200 transition-all font-medium";
+                feedback.innerHTML = "🌟 <b>Anak pintar!</b> 100 poin buat Wulan karena sudah pilih air putih pagi ini! Badan sehat, hari-hari makin lancar 💧✨";
+                
+                // Little celebratory confetti burst for choosing water
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 40,
+                        spread: 50,
+                        origin: { y: 0.7 }
+                    });
+                }
+            }
+        }
+
+        // --- 5. Modal Logic ---
+        function openSurpriseModal() {
+            const modal = document.getElementById('surpriseModal');
+            const card = document.getElementById('modalCard');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }, 10);
+
+            // Trigger light confetti for modal
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 60,
+                    spread: 60,
+                    origin: { y: 0.5 }
+                });
+            }
+        }
+
+        function closeSurpriseModal() {
+            const modal = document.getElementById('surpriseModal');
+            const card = document.getElementById('modalCard');
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            createParticles();
+        };
+    </script>
+</body>
+</html>
+```
